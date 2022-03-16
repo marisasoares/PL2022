@@ -115,10 +115,13 @@ def t_error(t):
 lexer = lex.lex()
 
 # Ler do STDIN e escrever para o STDOUT
+print("\\begin{document}")
 for line in sys.stdin:
 	lexer.input(line)
 	for tok in lexer:	
 		print(tok.value,end="")
+		
+print("\\end{document}")
 	
 
 
