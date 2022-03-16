@@ -9,3 +9,13 @@ Exemplos:
 # % Itálico dentro de um título /% /#
 
 
+Lista:
+
+[ 
+	- elemento 1
+	- elemento 2
+	- elemento 3
+	- $ elemento a negrito na lista /$
+/]
+
+	- elemento fora do contexto de lista

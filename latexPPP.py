@@ -1,13 +1,16 @@
 # Preprocessador de latex
+# 03/2022
 
 import re
 import ply.lex as lex
+import sys
 
 # Estados possíveis
 states = (
 	('title','inclusive'),
 	('bold','inclusive'),
 	('italic','inclusive'),
+	('list','inclusive'),
 )
 
 # Token
@@ -16,8 +19,10 @@ tokens = ["OPENTITLE",
 		  "OPENBOLD",
 		  "CLOSEBOLD",
 		  "OPENITALIC",
-		  "CLOSEITALIC",
-		  "WORDS"	]
+		  "CLOSEITALIC",	
+		  "OPENLIST",
+		  "CLOSELIST",
+		  "WORDS"]
 
 t_WORDS = r'[\w\s]+'
 
@@ -81,6 +86,26 @@ def t_italic_rule1(t):
 	r'[\w\s]+'
 	print(t.value,end = '')
 
+# Define o caracter de abertura de lista
+def t_OPENLIST(t):
+	r'\['
+	t.lexer.begin('list')
+	t.value = '\\begin{itemize}\n'
+	return t
+
+# Define o caracter de fecho da lista
+def t_CLOSELIST(t):
+	r'\/\]'
+	t.value = '\end{itemize}'
+	t.lexer.begin('INITIAL')
+	return t
+
+# Define o interior da lista
+def t_list_rule1(t):
+	r'\-[\w\s]+'
+	print('\n\t\item ' + t.value,end="")
+
+# Comportamento de erro
 def t_error(t):
 	#print(f"\nERROR: Illegal character '{t.value[0]}' at position ({t.lineno},{t.lexpos})")
 	print(t.value[0],end ='')
@@ -89,8 +114,7 @@ def t_error(t):
 # Analisador léxico
 lexer = lex.lex()
 
-import sys
-
+# Ler do STDIN e escrever para o STDOUT
 for line in sys.stdin:
 	lexer.input(line)
 	for tok in lexer:	
