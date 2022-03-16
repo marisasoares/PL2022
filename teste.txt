@@ -1,0 +1,11 @@
+# Processamento de linguagens /#
+
+Isto é um % ficheiro /% de $ teste /$
+Exemplos:
+
+	- % Italico /% -> começa por %
+	- $ Negrito /$ -> começa por $
+
+# % Itálico dentro de um título /% /#
+
+
