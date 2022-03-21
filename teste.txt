@@ -1,10 +1,15 @@
 # Processamento de linguagens /#
 
+## Título nível 2 /#
+
+### Título nível 3 /#
+
+
 Isto é um % ficheiro /% de $ teste /$
 Exemplos:
 
-	- % Italico /% -> começa por %
-	- $ Negrito /$ -> começa por $
+	- % Italico /% -> começa por \%
+	- $ Negrito /$ -> começa por \$
 
 # % Itálico dentro de um título /% /#
 
@@ -19,3 +24,9 @@ Lista:
 /]
 
 	- elemento fora do contexto de lista
+	
+« Image1.jpg »
+
+« Image2.jpg = Legenda da imagem 2 /= »
+
+« Image3.jpg = Legenda da imagem 3 com % italico /% e $ negrito /$ e caracteres especiais \% \$ /= »
