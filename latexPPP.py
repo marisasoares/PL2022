@@ -15,10 +15,13 @@ states = (
 	('figure','inclusive'),
 	('caption','inclusive'),
 	('numberedlist','inclusive'),
+	('table','exclusive'),
 )
 
 # Token
-tokens = ["OPENFIGURE",
+tokens = ["OPENTABLE",
+		  "CLOSETABLE",
+		  "OPENFIGURE",
 		  "CLOSEFIGURE",
 		  "OPENCAPTION",
 		  "CLOSECAPTION",
@@ -111,7 +114,7 @@ def t_italic_rule1(t):
 
 # Define o caracter de abertura de lista numerada
 def t_OPENNUMBEREDLIST(t):
-	r'\[N'
+	r'\[[nN]'
 	t.lexer.states.append('numberedlist')
 	t.lexer.begin('numberedlist')
 	t.value = '\\begin{enumerate}\n'
@@ -119,7 +122,7 @@ def t_OPENNUMBEREDLIST(t):
 
 # Define o caracter de fecho da lista numerada
 def t_CLOSENUMBEREDLIST(t):
-	r'\/\]'
+	r'\/[nN]\]'
 	t.value = '\end{enumerate}'
 	t.lexer.states = t.lexer.states[:-1]
 	return t
@@ -141,7 +144,7 @@ def t_OPENLIST(t):
 # Define o caracter de fecho da lista
 def t_CLOSELIST(t):
 	r'\/\]'
-	t.value = '\end{itemize}'
+	t.value = '\n\end{itemize}'
 	t.lexer.states = t.lexer.states[:-1]
 	return t
 
@@ -204,11 +207,44 @@ def t_CLOSEFIGURE(t):
 	t.lexer.states = t.lexer.states[:-1]
 	return t
 
+# Define o caracter de abertura de imagem
+def t_OPENTABLE(t):
+	r'@\d'
+	column_number = int(t.value[1])
+	t.lexer.begin('table')
+	t.lexer.states.append('table')
+	t.value = '\\begin{table}[h]\n\\begin{tabular}{'
+	for i in  range(0,column_number):
+		t.value += '|l'
+	t.value += '|}\n\\hline'
+	return t
+
+# Define o interior da imagem
+def t_table_rule1(t):
+	r'\|'
+	print(' & ',end="")
+	#print(t.value,end="")
+
+# Define o interior da imagem
+def t_table_rule2(t):
+	r'\w+\s*\n'
+	string = re.match(r'\w+',t.value)
+	print(string.group(0) + ' \\\\ \\hline\n',end = "")
+
+# Define o interior da imagem
+def t_ANY_CLOSETABLE(t):
+	r'\/@'
+	t.value = '\n\end{tabular}\n\end{table}\n'
+	t.lexer.states = t.lexer.states[:-1]
+	t.lexer.begin(str(t.lexer.states[-1]))
+	return t
+
 # Comportamento de erro
-def t_error(t):
+def t_ANY_error(t):
 	#print(f"\nERROR: Illegal character '{t.value[0]}' at position ({t.lineno},{t.lexpos})")
 	print(t.value[0],end ='')
 	t.lexer.skip(1)
+
 
 # Analisador léxico
 lexer = lex.lex()
