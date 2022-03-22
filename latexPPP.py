@@ -2,7 +2,6 @@
 # 03/2022
 
 import re
-from xml.etree.ElementInclude import include
 import ply.lex as lex
 import sys
 
