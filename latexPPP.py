@@ -2,6 +2,7 @@
 # 03/2022
 
 import re
+from xml.etree.ElementInclude import include
 import ply.lex as lex
 import sys
 
@@ -13,6 +14,7 @@ states = (
 	('list','inclusive'),
 	('figure','inclusive'),
 	('caption','inclusive'),
+	('numberedlist','inclusive'),
 )
 
 # Token
@@ -25,9 +27,11 @@ tokens = ["OPENFIGURE",
 		  "OPENBOLD",
 		  "CLOSEBOLD",
 		  "OPENITALIC",
-		  "CLOSEITALIC",	
+		  "CLOSEITALIC",
 		  "OPENLIST",
 		  "CLOSELIST",
+		  "OPENNUMBEREDLIST",
+		  "CLOSENUMBEREDLIST",
 		  "SPECIALCHAR",
 		  "WORDS"]
 
@@ -80,7 +84,6 @@ def t_CLOSEBOLD(t):
 	t.lexer.states = t.lexer.states[:-1]
 	return t
 
-	
 # Regra interior bold
 def t_bold_rule1(t):
 	r'[\w\s]+'
@@ -100,11 +103,32 @@ def t_CLOSEITALIC(t):
 	t.value = '}'
 	t.lexer.states = t.lexer.states[:-1]
 	return t
-	
+
 # Regra interior italico
 def t_italic_rule1(t):
 	r'[\w\s]+'
 	print(t.value,end = '')
+
+# Define o caracter de abertura de lista numerada
+def t_OPENNUMBEREDLIST(t):
+	r'\[N'
+	t.lexer.states.append('numberedlist')
+	t.lexer.begin('numberedlist')
+	t.value = '\\begin{enumerate}\n'
+	return t
+
+# Define o caracter de fecho da lista numerada
+def t_CLOSENUMBEREDLIST(t):
+	r'\/\]'
+	t.value = '\end{enumerate}'
+	t.lexer.states = t.lexer.states[:-1]
+	return t
+
+# Define o interior da lista numerada
+def t_numberedlist_rule1(t):
+	r'\-[\w\s]+'
+	print('\n\t\item ' + t.value[1:])
+
 
 # Define o caracter de abertura de lista
 def t_OPENLIST(t):
@@ -125,7 +149,8 @@ def t_CLOSELIST(t):
 def t_list_rule1(t):
 	r'\-[\w\s]+'
 	print('\n\t\item ' + t.value[1:],end="")
-	
+
+
 
 # Define o caracter de abertura de imagem
 def t_OPENCAPTION(t):
@@ -143,11 +168,11 @@ def t_caption_rule1(t):
 
 # Define o interior da imagem
 def t_CLOSECAPTION(t):
-	r'\/='	
+	r'\/='
 	t.value = '}'
 	t.lexer.states = t.lexer.states[:-1]
 	return t
-	
+
 # Define o caracter de abertura de imagem
 def t_OPENFIGURE(t):
 	r'«'
@@ -164,17 +189,17 @@ def t_figure_rule1(t):
 
 # Define o interior da imagem
 def t_figure_rule2(t):
-	r'\|'	
+	r'\|'
 	print(t.lexer.states)
 
-	print('\caption{',end="")	
+	print('\caption{',end="")
 	t.lexer.states.append('caption')
 	t.lexer.begin('caption')
 
 
 # Define o interior da imagem
 def t_CLOSEFIGURE(t):
-	r'»'	
+	r'»'
 	t.value = '\n\end{figure}\n'
 	t.lexer.states = t.lexer.states[:-1]
 	return t
@@ -183,7 +208,7 @@ def t_CLOSEFIGURE(t):
 def t_error(t):
 	#print(f"\nERROR: Illegal character '{t.value[0]}' at position ({t.lineno},{t.lexpos})")
 	print(t.value[0],end ='')
-	t.lexer.skip(1) 
+	t.lexer.skip(1)
 
 # Analisador léxico
 lexer = lex.lex()
@@ -197,9 +222,8 @@ print("\\usepackage{graphicx}")
 print("\\begin{document}")
 for line in sys.stdin:
 	lexer.input(line)
-	for tok in lexer:	
+	for tok in lexer:
 		print(tok.value,end="")
-		
 print("\\end{document}")
 
 
